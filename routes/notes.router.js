@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-
+const knex = require('../knex');
 // Create an router instance (aka "mini-app")
 const router = express.Router();
 
@@ -16,20 +16,39 @@ const notes = simDB.initialize(data);
 /* ========== GET/READ ALL NOTES ========== */
 router.get('/notes', (req, res, next) => {
   const { searchTerm } = req.query;
-  /* 
-  notes.filter(searchTerm)
+    
+  knex.select('id', 'title', 'content')
+    .from('notes')
+    .where(function() {
+      if(searchTerm) {
+        this.where('title', 'like', `%${searchTerm}%`);
+      }
+    })
     .then(list => {
       res.json(list);
     })
-    .catch(err => next(err)); 
-  */
+    .catch(err => next(err));
 });
+
 
 /* ========== GET/READ SINGLE NOTES ========== */
 router.get('/notes/:id', (req, res, next) => {
   const noteId = req.params.id;
 
-  /*
+  knex.select('id','title', 'content')
+    .from('notes')
+    .where('notes.id', noteId)
+    .then(([result]) => {
+      if (result) {
+        res.json(result);
+      } else {
+        next();
+      }
+    })
+    .catch(next);
+});
+
+/*
   notes.find(noteId)
     .then(item => {
       if (item) {
@@ -40,7 +59,7 @@ router.get('/notes/:id', (req, res, next) => {
     })
     .catch(err => next(err));
   */
-});
+
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
 router.put('/notes/:id', (req, res, next) => {
