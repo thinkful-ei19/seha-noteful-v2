@@ -44,7 +44,7 @@ const noteful = (function () {
 
       const noteId = getNoteIdFromElement(event.currentTarget);
 
-      api.details(`/v2/notes/${noteId}`)
+      api.details(`/api/notes/${noteId}`)
         .then((response) => {
           store.currentNote = response;
           render();
@@ -58,7 +58,7 @@ const noteful = (function () {
 
       store.currentQuery.searchTerm = $(event.currentTarget).find('input').val();
 
-      api.search('/v2/notes', store.currentQuery)
+      api.search('/api/notes', store.currentQuery)
         .then(response => {
           store.notes = response;
           render();
@@ -79,20 +79,20 @@ const noteful = (function () {
       };
 
       if (store.currentNote.id) {
-        api.update(`/v2/notes/${noteObj.id}`, noteObj)
+        api.update(`/api/notes/${noteObj.id}`, noteObj)
           .then(updateResponse => {
             store.currentNote = updateResponse;
-            return api.search('/v2/notes', store.currentQuery);
+            return api.search('/api/notes', store.currentQuery);
           })
           .then(response => {
             store.notes = response;
             render();
           });
       } else {
-        api.create('/v2/notes', noteObj)
+        api.create('/api/notes', noteObj)
           .then(createResponse => {
             store.currentNote = createResponse;
-            return api.search('/v2/notes', store.currentQuery);
+            return api.search('/api/notes', store.currentQuery);
           })
           .then(response => {
             store.notes = response;
@@ -118,8 +118,8 @@ const noteful = (function () {
       if (noteId === store.currentNote.id) {
         store.currentNote = {};
       }
-      api.remove(`/v2/notes/${noteId}`)
-        .then(() => api.search('/v2/notes', store.currentQuery))
+      api.remove(`/api/notes/${noteId}`)
+        .then(() => api.search('/api/notes', store.currentQuery))
         .then(response => {
           store.notes = response;
           render();
