@@ -89,10 +89,10 @@ router.put('/notes/:id', (req, res, next) => {
     .from('notes')
     .update(updateObj)
     .where('id', noteId)
-    .returning(['id', ])
-    .then(item => {
-      if (item) {
-        res.json(item);
+    .returning(['id', 'title', 'content' ])
+    .then(result => {
+      if (result) {
+        res.json(result);
       } else {
         next();
       }
@@ -117,9 +117,9 @@ router.post('/notes', (req, res, next) => {
     .insert(newItem)
     .into('notes')
     .returning(['id', 'title', 'content'])
-    .then(item => {
-      if (item) {
-        res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item);
+    .then(result => {
+      if (result) {
+        res.location(`http://${req.headers.host}/notes/${result.id}`).status(201).json(result);
       }
     })
     .catch(err => next());
