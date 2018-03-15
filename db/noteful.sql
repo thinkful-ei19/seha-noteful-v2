@@ -1,7 +1,8 @@
 -- psql -U dev -f ./db/noteful.sql -d noteful-app
 
 -- SELECT CURRENT_DATE;
-
+DROP TABLE IF EXISTS notes_tags;
+DROP TABLE IF EXISTS tags;
 DROP TABLE IF EXISTS notes;
 DROP TABLE IF EXISTS folders;
 
@@ -12,22 +13,32 @@ CREATE TABLE folders (
 
 ALTER SEQUENCE folders_id_seq RESTART WITH 100;
 
+CREATE TABLE notes (
+  id serial PRIMARY KEY,
+  title text NOT NULL,
+  content text,
+  created timestamp DEFAULT now()
+);
+
+ALTER SEQUENCE notes_id_seq RESTART WITH 1000;
+ALTER TABLE notes ADD COLUMN folder_id int REFERENCES folders ON DELETE SET NULL;
+
+CREATE TABLE tags (
+    id serial PRIMARY KEY,
+    name text NOT NULL
+);
+
+CREATE TABLE notes_tags (
+  note_id INTEGER NOT NULL REFERENCES notes ON DELETE CASCADE,
+  tag_id INTEGER NOT NULL REFERENCES tags ON DELETE CASCADE
+);
+
 INSERT INTO folders (name) VALUES
   ('Archive'),
   ('Drafts'),
   ('Personal'),
   ('Work');
 
-
-CREATE TABLE notes (
-  id serial PRIMARY KEY,
-  title text NOT NULL,
-  content text,
-  created timestamp DEFAULT now(),
-  folder_id int REFERENCES folders ON DELETE SET NULL
-);
-
-ALTER SEQUENCE notes_id_seq RESTART WITH 1000;
 
 INSERT INTO notes (title, content, folder_id) VALUES 
   (
@@ -81,6 +92,27 @@ INSERT INTO notes (title, content, folder_id) VALUES
     NULL
   );
 
--- -- get all notes
+INSERT INTO tags (name) VALUES
+('foo'),
+('bar'),
+('baz'),
+('qux');
+ 
+INSERT INTO notes_tags (note_id, tag_id) VALUES
+(1001, 1),
+(1002, 1), (1002, 2),
+(1003, 1), (1003, 2), (1003,2),
+(1004, 1), (1004, 2), (1004, 4), (1004, 4),
+(1005, 2), 
+(1005, 3), (1005, 3),
+(1006, 3),
+(1007, 3), 
+(1007, 3), (1007, 4),
+(1008, 3), (1008, 4),
+(1009, 4);
 
 
+--  SELECT title, tags.name, folders.name FROM notes
+--  LEFT JOIN folders ON notes.folder_id = folders.id
+--  LEFT JOIN notes_tags ON notes.id = notes_tags.note_id
+--  LEFT JOIN tags ON notes_tags.tag_id = tags.id;
