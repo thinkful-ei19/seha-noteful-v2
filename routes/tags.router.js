@@ -15,11 +15,11 @@ router.get('/tags', (req, res, next) => {
 });
 
 router.get('/tags/:id', (req, res, next) => {
-  const tagsId = req.params.id;
+  const tagId = req.params.id;
 
   knex.select()
     .from('tags')
-    .where('id', tagsId)
+    .where('id', tagId)
     .then(([result]) => {
       if (result) {
         res.json(result);
@@ -31,7 +31,7 @@ router.get('/tags/:id', (req, res, next) => {
 });
 
 router.put('/tags/:id', (req, res, next) => {
-  const tagsId = req.params.id;
+  const tagId = req.params.id;
   /***** Never trust users - validate input *****/
   const updateObj = {};
   const updateableFields = ['name'];
@@ -52,7 +52,7 @@ router.put('/tags/:id', (req, res, next) => {
   knex
     .from('tags')
     .update(updateObj)
-    .where('id', tagsId)
+    .where('id', tagId)
     .returning(['id', 'name'])
     .then(result => {
       if (result) {
